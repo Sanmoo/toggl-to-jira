@@ -1,0 +1,20 @@
+com.samuel.view.ToggleSummaryReportForWeekTest.render report correctly=[
+14/03/2022
+----------
+
+Soy un log amigo (91h 14m 49s)
+Soy un otro log (54m 49s)
+
+15/03/2022
+----------
+
+JIRA-123: Done this and that (7h 54m 49s)
+Done this and that and that (9h 8m 10s)
+
+16/03/2022
+----------
+
+JIRA-123: Done this and that (7h 54m 49s)
+JIRA-432: Dooooooone this and that (9h 58m 10s)
+JIRA-1500: Dooooooone this and that (18h 18m 10s)
+]
