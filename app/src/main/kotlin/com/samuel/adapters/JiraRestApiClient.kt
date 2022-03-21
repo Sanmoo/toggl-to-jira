@@ -43,7 +43,7 @@ class JiraRestApiClient(
                 JiraWorklogEntry(
                     entry.issueKey,
                     it.int("timeSpentSeconds")!!,
-                    description = it.obj("comment")?.array<JsonObject>("content")?.get(0)?.array<JsonObject>("content")?.get(0)?.string("text"),
+                    description = it.obj("comment")?.array<JsonObject>("content")?.getOrNull(0)?.array<JsonObject>("content")?.getOrNull(0)?.string("text"),
                     start = ZonedDateTime.parse(it.string("started"), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS[xxx][xx][X]"))
                 )
             }
@@ -60,25 +60,27 @@ class JiraRestApiClient(
 
     override fun logWork(entry: JiraWorklogEntry) {
         println("Sending to JIRA: ${entry.toSimpleString()}")
-        val body = JsonObject(
-            mapOf(
-                "timeSpentSeconds" to entry.amountInSeconds,
-                "started" to entry.start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")),
-                "comment" to JsonObject(
-                    mapOf(
-                        "type" to "doc",
-                        "version" to 1,
-                        "content" to JsonArray(
-                            listOf(
-                                JsonObject(
-                                    mapOf(
-                                        "type" to "paragraph",
-                                        "content" to JsonArray(
-                                            listOf(
-                                                JsonObject(
-                                                    mapOf(
-                                                        "text" to entry.description,
-                                                        "type" to "text"
+        val body: String = if (entry.description != null) {
+            JsonObject(
+                mapOf(
+                    "timeSpentSeconds" to entry.amountInSeconds,
+                    "started" to entry.start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")),
+                    "comment" to JsonObject(
+                        mapOf(
+                            "type" to "doc",
+                            "version" to 1,
+                            "content" to JsonArray(
+                                listOf(
+                                    JsonObject(
+                                        mapOf(
+                                            "type" to "paragraph",
+                                            "content" to JsonArray(
+                                                listOf(
+                                                    JsonObject(
+                                                        mapOf(
+                                                            "text" to entry.description,
+                                                            "type" to "text"
+                                                        )
                                                     )
                                                 )
                                             )
@@ -89,8 +91,16 @@ class JiraRestApiClient(
                         )
                     )
                 )
-            )
-        ).toJsonString()
+            ).toJsonString()
+        } else {
+            JsonObject(
+                mapOf(
+                    "timeSpentSeconds" to entry.amountInSeconds,
+                    "started" to entry.start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")),
+                )
+            ).toJsonString()
+        }
+
         println("Json: $body")
 
         runBlocking {
